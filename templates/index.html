@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo Dõi Tốc Độ Xe - Web App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .video-section {
+            flex: 2;
+        }
+
+        .control-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #video-feed {
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            min-height: 360px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #video-feed img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .stats-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-secondary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0b7dda;
+        }
+
+        .btn-warning {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e68900;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #da190b;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            background-color: #5bc0de;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background-color: #46b8da;
+        }
+
+        .upload-status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .no-video {
+            color: #999;
+            font-size: 18px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Theo Dõi Tốc Độ Xe</h1>
+
+        <div class="main-content">
+            <div class="video-section">
+                <div id="video-feed">
+                    <span class="no-video">Chưa có video nào được tải lên</span>
+                </div>
+
+                <div class="stats-section">
+                    <h3>Thống kê</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="car-count">0</div>
+                            <div class="stat-label">Ô tô</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="motorbike-count">0</div>
+                            <div class="stat-label">Xe máy</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="max-speed">0</div>
+                            <div class="stat-label">Tốc độ tối đa (km/h)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="file-input-wrapper">
+                    <label for="video-upload" class="file-input-label">
+                        <span class="icon">📂</span>
+                        <span>Tải video lên</span>
+                    </label>
+                    <input type="file" id="video-upload" accept="video/*">
+                </div>
+
+                <button id="new-video-btn" class="btn btn-secondary">
+                    <span class="icon">🔁</span>
+                    <span>Thêm video mới</span>
+                </button>
+
+                <button id="pause-btn" class="btn btn-warning">
+                    <span class="icon">⏸️</span>
+                    <span>Tạm dừng</span>
+                </button>
+
+                <button id="stop-btn" class="btn btn-danger">
+                    <span class="icon">❌</span>
+                    <span>Kết Thúc</span>
+                </button>
+
+                <div class="upload-status" id="upload-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+        let isPaused = false;
+        let statsInterval;
+
+        // Upload video
+        document.getElementById('video-upload').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('video', file);
+
+            const statusEl = document.getElementById('upload-status');
+            statusEl.innerHTML = '<div class="loading"></div> Đang tải lên...';
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        statusEl.innerHTML = '<span style="color: green">✓ Tải lên thành công!</span>';
+                        startVideoFeed();
+                        startStatsUpdate();
+                        isProcessing = true;
+                    } else {
+                        statusEl.innerHTML = '<span style="color: red">✗ Lỗi: ' + data.message + '</span>';
+                    }
+                })
+                .catch(error => {
+                    statusEl.innerHTML = '<span style="color: red">✗ Lỗi khi tải lên</span>';
+                    console.error('Error:', error);
+                });
+        });
+
+        // Start video feed
+        function startVideoFeed() {
+            const videoFeed = document.getElementById('video-feed');
+            videoFeed.innerHTML = '<img src="/video_feed" alt="Video Feed">';
+        }
+
+        // Update stats
+        function startStatsUpdate() {
+            statsInterval = setInterval(() => {
+                fetch('/get_stats')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('car-count').textContent = data.car_count || 0;
+                        document.getElementById('motorbike-count').textContent = data.motorbike_count || 0;
+                        document.getElementById('max-speed').textContent = data.max_speed || 0;
+                    });
+            }, 1000);
+        }
+
+        // Pause/Resume button
+        document.getElementById('pause-btn').addEventListener('click', function () {
+            fetch('/toggle_pause', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    isPaused = data.paused;
+                    this.innerHTML = isPaused ?
+                        '<span class="icon">▶️</span><span>Tiếp tục</span>' :
+                        '<span class="icon">⏸️</span><span>Tạm dừng</span>';
+                });
+        });
+
+        // Stop button
+        document.getElementById('stop-btn').addEventListener('click', function () {
+            fetch('/stop_video', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    isProcessing = false;
+                    clearInterval(statsInterval);
+                    document.getElementById('video-feed').innerHTML = '<span class="no-video">Video đã dừng</span>';
+                    document.getElementById('upload-status').innerHTML = '';
+                    resetStats();
+                });
+        });
+
+        // New video button
+        document.getElementById('new-video-btn').addEventListener('click', function () {
+            if (isProcessing) {
+                // Stop current video first
+                fetch('/stop_video', { method: 'POST' })
+                    .then(() => {
+                        document.getElementById('video-upload').click();
+                    });
+            } else {
+                document.getElementById('video-upload').click();
+            }
+        });
+
+        function resetStats() {
+            document.getElementById('car-count').textContent = '0';
+            document.getElementById('motorbike-count').textContent = '0';
+            document.getElementById('max-speed').textContent = '0';
+        }
+    </script>
+</body>
+
+</html>
